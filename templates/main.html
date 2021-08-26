@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Document</title>
+    <style>
+        span {
+            margin: .25rem;
+        }
+        .span-first {
+            color: red;
+            font-size: 1.7rem;
+        }
+        .div-poem {
+            margin: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .wrapper {
+            flex-direction: column;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #input {
+            text-align: center;
+            font-size: 3rem;
+            padding: 1rem;
+            border: none;
+            border-bottom: 1px solid black;
+            max-width: 700px;
+            width: 100%;
+        }
+        #submit-btn {
+            padding: 1rem;
+            font-size: 2rem;
+            margin-top: 1rem;
+            border: none;
+            max-width: 700px;
+            width: 100%;
+        }
+        #result {
+            max-width: 700px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <input type="text" id="input">
+        <button id="submit-btn">Create Acrostic Poem!</button>
+        <div id="result"></div>
+    </div>
+    <script>
+        document.querySelector("#submit-btn").addEventListener("click", ()=> {
+            const word = document.querySelector("#input").value.toLowerCase()
+            console.log(word)
+            $.ajax({
+                url: `/result/${word}`,
+                success: function(data){
+                    document.querySelector("#result").innerHTML = ""
+                    const poemString = data.data
+                    console.log(poemString)
+                    const splitedPoemString = poemString.split(" ")
+                    const splitedWord = data.word.split("")
+                    let targetWordInitial = ""
+                    splitedWord.shift()
+                    let targetString = splitedPoemString.shift()
+                    while(splitedWord.length>0 || targetWordInitial !== undefined) {
+                        targetWordInitial = splitedWord.shift()
+                        const newDiv = document.createElement("div")
+                        newDiv.className = "div-poem"
+                        newDiv.innerHTML += `<span class="span-first">${targetString}</span>`
+                        while(splitedPoemString.length>0) {
+                            targetString = splitedPoemString.shift()
+                            if(targetString[0]===targetWordInitial) break
+                            else newDiv.innerHTML += `<span>${targetString}</span>`
+                        }
+                        document.querySelector("#result").appendChild(newDiv)
+                    }
+                },
+                error: function (request, status, error){
+                    document.querySelector("#result").textContent = error
+                }
+            });
+        })
+    </script>
+</body>
+</html>
